@@ -19,9 +19,34 @@ to do
 ### Emulate a card
 to do 
 ### Work with a peer
+***LLCP(Logical Link Control Protocol)***: Allows multiplexed communications 
+between two NFC Forum Devices with either peer able to send protocol data units 
+at any time and no restriction to a single application run in one direction.
+* An LLCP link between two NFC devices is requested with the llcp argument to ``clf.connect()``
 ```
 import nfc
 clf = ContactlessFrontend('usb')
 clf.connect(llcp={})
 # this will return True/False to represent connection status
+```
+* Use callback functions to add some useful stuff.
+```
+def on_connect(llc):
+    print llc
+    return True
+
+clf.connect(llcp={'on-connect': connected})
+# it will firstly print the llc info
+# and return True/False to represent connection status
+```
+* Start a thread in the callback to execute the llc.run* loop and return with False. 
+This tells ``clf.connect()`` to return immediately with the llc instance.
+```
+import threading
+def on_connect(llc):
+    threading.Thread(target=llc.run).start()
+    return False
+
+llc = clf.connect(llcp={'on-connect': on_connect})
+print llc
 ```
