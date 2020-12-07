@@ -3,7 +3,7 @@
 Near-Field-Communication (NFC) is a set of communication protocols for communication 
 between two electronic devices over a distance of 4 cm (1.5 in) or less.
 NFC offers a low-speed connection with simple setup that can be used to bootstrap more-capable wireless connections.
-###Work Mode
+### NFC Reader-Tag Work Mode
 Basic mode of communication is half duplex in NFC, where in one NFC device transmits while other device receives. 
 This is also referred as “Listen before Talk”. Here one of the two NFC devices will function as initiator which 
 first listen on channel and transmits only when no other signal is there on channel. Here Initiator polls 
@@ -20,7 +20,26 @@ the other devices which comes closer to it. The other NFC device referred as tar
    When working in passive mode, the initiator sends RF energy to the target to power it. The target modulates this energy 
    in order to send data back to the initiator. Unlike active mode, the target relies on load modulation (making changes to 
    the amplitude of the original signal) to transmit data. It doesn’t generate a field of its own, but rather changes the field of the initiator to transfer data.
-
+### NFC Network Modes
+1. ***Card Emulation***\
+In this mode, usually active device reads passive device.\
+Following are the steps involved in card emulation mode:
+    1. Step-1: NFC reader oscillates 13.56 MHz RF field. When the card comes near to the RF field, 
+    it gets power due to EM (Electro-magnetic) coupling and gets connected with the reader.
+    2. Step-2: Reader sends commands using RF field.
+    3. Step-3: Card responds to the reader as requested.
+2. ***Reader/Writer***\
+In this mode, one device will be in reading mode and the other one will be in writing mode. They can be either active device or passive device.\
+Following are the steps involved in reader/writer mode:
+    1. Step-1: In read mode, NFC reader reads NFC tags either passive or active one.
+    2. Step-2: In Write mode, one NFC device writes to the other NFC device.
+3. ***NFC Peer to Peer (Point to Point)***\
+In this mode, data is transmitted from one NFC device to the other NFC device in adhoc or peer to peer mode. 
+Here any device can become initiator and the rest of the device will act as target to complete the connection establishment.\
+Following are the steps involved in peer to peer mode (active mode):
+    1. Step-1: Both NFC smartphones establish pairing for data communication. Both have got power and their own RF fields.
+    2. Step-2: Initiator sends commands by modulating RF field and switches off the RF field.
+    3. Step-3: Target device responds to the initiator using its own RF field modulation.
 ## Our Attempts
 This is the guide for using our NFC bracelet.
 
