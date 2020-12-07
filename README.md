@@ -39,6 +39,8 @@ clf.connect(llcp={'on-connect': connected})
 # it will firstly print the llc info
 # and return True/False to represent connection status
 ```
+Output: ``LLC: Local(MIU=128, LTO=100ms) Remote(MIU=1024, LTO=500ms)``
+and ``True``
 * Start a thread in the callback to execute the llc.run* loop and return with False. 
 This tells ``clf.connect()`` to return immediately with the llc instance.
 ```
@@ -50,3 +52,13 @@ def on_connect(llc):
 llc = clf.connect(llcp={'on-connect': on_connect})
 print llc
 ```
+Output: ``LLC: Local(MIU=128, LTO=100ms) Remote(MIU=1024, LTO=500ms)``
+* The Application code is not supposed to work directly with the llc object 
+but use it to create Socket objects for the actual communication. The code 
+is simplified as follows:
+```
+import nfc.snep
+nep = nfc.snep.SnepClient(llc)
+snep.put_records([ndef.UriRecord("http://nfcpy.org")])
+```
+Output: ``True``
