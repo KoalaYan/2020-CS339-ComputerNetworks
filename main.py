@@ -9,6 +9,9 @@ import nfc
 import cli
 import sys
 import io
+import os
+import sys
+from sys import stderr
 
 
 log = logging.getLogger('main')
@@ -286,3 +289,6 @@ class Main(cli.CommandLineInterface):
 
 if __name__ == '__main__':
     Main().run()
+
+
+
