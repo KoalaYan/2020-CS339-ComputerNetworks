@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="822a13c9-cbe2-4fc0-bb45-e83a2c7e3c09" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/daemon.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/daemon_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/send.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testfiles.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/work_with_a_peer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Raspberry-Part/send.py" beforeDir="false" afterPath="$PROJECT_DIR$/Raspberry-Part/send.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
