@@ -24,7 +24,7 @@ def add():
     FilePath = '/usr/test/'
     num = len(os.listdir(FilePath))
     for i in range(0+num,10+num):
-        fn = "./test/test_"+str(i)+".txt"
+        fn = "/usr/test/test_"+str(i)+".txt"
         fo = open(fn, "w+")
         print("Add file, filename is: ", fo.name)
         str_in = 'This is the ' + str(i) + ' test file.'
