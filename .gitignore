@@ -1,4 +1,4 @@
 # Default ignored files
-__pycache__/
-.idea/
-argparse_tutorial.py
+Raspberry-Part/__pycache__/
+Raspberry-Part/.idea/
+Raspberry-Part/argparse_tutorial.py
