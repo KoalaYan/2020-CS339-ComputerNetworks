@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
         nfcUtils = new NfcUtils(this);
         mNfcAdapter = NfcUtils.mNfcAdapter;
         mPendingIntent = NfcUtils.mPendingIntent;
-
     }
 
     @Override
@@ -44,11 +43,6 @@ public class MainActivity extends AppCompatActivity {
             myText.setText("NFC is not available on this device.");
         } else {
             myText.setText("oooooooops");
-            // 注册回调来设置 NDEF 消息。这样做可以使Activity处于前台时，
-            // NFC 数据推送处于激活状态。
-            //mNfcAdapter.setNdefPushMessageCallback(this, this);
-            // 注册回调来监听消息发送成功
-            //mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
         }
     }
 
@@ -74,36 +68,14 @@ public class MainActivity extends AppCompatActivity {
         try {
             String str = NfcUtils.readNFCFromTag(intent);
             if(str.length() == 0) {
-                myText.setText("FFFFFFFuck");
+                myText.setText("Length of String is 0. Failed...");
             }
             else {
-                //myText.setText("YYYYYYes");
                 myText.setText(str);
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
-
-    /*
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        //当该Activity接收到NFC标签时，运行该方法
-        //调用工具方法，读取NFC数据
-        try {
-            String str = NfcUtils.readNFCFromTag(intent);
-            //myText.setText(str);
-            processExtraData();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void processExtraData() {
-        myText.setText("123");
-    }
-
-     */
 
 }
