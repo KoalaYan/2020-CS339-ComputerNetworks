@@ -15,8 +15,7 @@ import android.provider.Settings;
 
 import java.io.UnsupportedEncodingException;
 
-public class NfcUtils extends NfcBase{
-
+public class NfcUtils {
     // NFC
     public static NfcAdapter mNfcAdapter;
     public static IntentFilter[] mIntentFilter = null;
