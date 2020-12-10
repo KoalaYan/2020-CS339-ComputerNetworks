@@ -15,13 +15,14 @@ import android.provider.Settings;
 
 import java.io.UnsupportedEncodingException;
 
-public class NfcUtils extends NfcBase {
+public class NfcUtils extends NfcBase{
 
     // NFC
     public static NfcAdapter mNfcAdapter;
     public static IntentFilter[] mIntentFilter = null;
     public static PendingIntent mPendingIntent = null;
     public static String[][] mTechList = null;
+
 
     // 构造函数
     public NfcUtils(Activity activity) {
@@ -31,16 +32,16 @@ public class NfcUtils extends NfcBase {
 
     // 检查NFC是否打开
     public static NfcAdapter NfcCheck(Activity activity) {
-        NfcAdapter mNfcAdapter = NfcAdapter.getDefaultAdapter(activity);
-        if (mNfcAdapter == null) {
+        NfcAdapter tmpAdapter = NfcAdapter.getDefaultAdapter(activity);
+        if (tmpAdapter == null) {
             return null;
         } else {
-            if (!mNfcAdapter.isEnabled()) {
+            if (!tmpAdapter.isEnabled()) {
                 Intent setNfc = new Intent(Settings.ACTION_NFC_SETTINGS);
                 activity.startActivity(setNfc);
             }
         }
-        return mNfcAdapter;
+        return tmpAdapter;
     }
 
     // 初始化NFC设置
