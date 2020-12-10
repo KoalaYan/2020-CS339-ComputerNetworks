@@ -59,7 +59,10 @@ We will focus on ***work with a peer*** part.
 #### Read and write tags
 to do
 #### Emulate a card
-to do 
+Unfortunately this is limited to Type 3 Tag emulation. Devices based on PN532 chipset can also be used 
+but an internal frame size limit of 64 byte only allows read/write operations with up to 3 data blocks.
+
+
 #### Work with a peer
 ***LLCP(Logical Link Control Protocol)***: Allows multiplexed communications 
 between two NFC Forum Devices with either peer able to send protocol data units 
