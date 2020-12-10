@@ -3,14 +3,16 @@
 import sys
 import os
 
+
 def create():
-    for i in range(0,10):
-        fn = "/usr/test/test_"+str(i)+".txt"
+    for i in range(0, 10):
+        fn = "/usr/test/test_" + str(i) + ".txt"
         fo = open(fn, "w+")
         print("Create file, filename is: ", fo.name)
         str_in = 'This is the ' + str(i) + ' test file.'
         fo.write(str_in)
         fo.close()
+
 
 def delete():
     FilePath = '/usr/test/'
@@ -20,16 +22,18 @@ def delete():
             os.remove(fn)
             print("Delete file, filename is: ", fn)
 
+
 def add():
     FilePath = '/usr/test/'
     num = len(os.listdir(FilePath))
-    for i in range(0+num,10+num):
-        fn = "/usr/test/test_"+str(i)+".txt"
+    for i in range(0 + num, 10 + num):
+        fn = "/usr/test/test_" + str(i) + ".txt"
         fo = open(fn, "w+")
         print("Add file, filename is: ", fo.name)
         str_in = 'This is the ' + str(i) + ' test file.'
         fo.write(str_in)
         fo.close()
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -45,5 +49,3 @@ if __name__ == '__main__':
     else:
         print('Unknown command')
         raise SystemExit(1)
-
-    

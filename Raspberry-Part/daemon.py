@@ -8,12 +8,14 @@ import signal
 
 
 class Daemon:
-    def __init__(self, pidfile='/tmp/daemon.pid', stdin='/dev/null', stdout='/dev/null', stderr='/dev/null', filepath = '/usr/test/'):
+    def __init__(self, pidfile='/tmp/daemon.pid', stdin='/dev/null', stdout='/dev/null', stderr='/dev/null',
+                 filepath='/usr/test/'):
         self.stdin = stdin
         self.stdout = stdout
         self.stderr = stderr
         self.pidfile = pidfile
         self.filepath = filepath
+
     def daemonize(self):
         if os.path.exists(self.pidfile):
             raise RuntimeError('Already running.')

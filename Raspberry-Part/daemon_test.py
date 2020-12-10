@@ -5,6 +5,7 @@ from random import randint
 
 from daemon import Daemon
 
+
 class MyTestDaemon(Daemon):
     def run(self):
         sys.stdout.write('Daemon started with pid {}\n'.format(os.getpid()))
@@ -13,12 +14,16 @@ class MyTestDaemon(Daemon):
             sys.stdout.flush()
 
             filelist = [f for f in os.listdir(self.filepath) if os.path.isfile(os.path.join(self.filepath, f))]
-            if(len(filelist)>=10):
+            filelist.sort()
+
+            if len(filelist) >= 10:
                 fn = os.path.join(self.filepath, filelist[0])
                 os.remove(fn)
+                sys.stdout.write('Delete log file: ' + fn + '\n')
+                sys.stdout.flush()
 
             localtime = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            fn = "/usr/test/"+str(localtime)+".log"
+            fn = self.filepath + str(localtime) + ".log"
             fo = open(fn, "w+")
             print("Create file, filename is: ", fo.name)
             band_time = str(localtime) + "#"
@@ -27,24 +32,12 @@ class MyTestDaemon(Daemon):
             str_in = band_time + steps + heart_rate
             fo.write(str_in)
             fo.close()
-            # filelist = [f for f in os.listdir(self.filepath) if os.path.isfile(os.path.join(self.filepath, f))]
-            # filenum = randint(0, len(filelist)-1)
-            # fn = os.path.join(self.filepath, filelist[filenum])
-            # fo = open(fn,'r')
-            # all_txt = fo.read()
-            # fo.close()
-            #
-            # fn = os.path.splitext(filelist[filenum])[0] + '_copy' + os.path.splitext(filelist[filenum])[1]
-            # fn = os.path.join(self.filepath, fn)
-            # fo = open(fn, "w+")
-            # str_in = 'This is the copy file.\n' + all_txt
-            # fo.write(str_in)
-            # fo.close()
-            #
-            # sys.stdout.write('Copy file: '+fn+'\n')
-            # sys.stdout.flush()
 
-            time.sleep(20)
+            sys.stdout.write('Create log file: '+fn+'\n')
+            sys.stdout.flush()
+
+            time.sleep(5)
+
 
 if __name__ == '__main__':
     PIDFILE = '/tmp/daemon-example.pid'
