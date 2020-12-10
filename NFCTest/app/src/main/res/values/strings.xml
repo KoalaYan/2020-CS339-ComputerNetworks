@@ -3,4 +3,5 @@
     <string name="Header">SPORTS SNAP</string>
     <string name="topHeader">SPORTS</string>
     <string name="stepcount">Step Count:</string>
+    <string name="heartrate">Heart Rate:</string>
 </resources>

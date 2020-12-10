@@ -17,7 +17,8 @@ import java.io.UnsupportedEncodingException;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView myText;
+    private TextView myStepCount;
+    private TextView myHeartRate;
     private NfcAdapter mNfcAdapter;
     //private IntentFilter[] mIntentFilter = null;
     private PendingIntent mPendingIntent;
@@ -36,13 +37,15 @@ public class MainActivity extends AppCompatActivity {
         initData();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        myText = (TextView) findViewById(R.id.mycount);
+        myStepCount = (TextView) findViewById(R.id.mycount);
+        myHeartRate = (TextView) findViewById(R.id.myrate);
 
         //mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
-            myText.setText("NFC is not available on this device.");
+            myStepCount.setText("NFC is not available on this device.");
         } else {
-            myText.setText("oooooooops");
+            myStepCount.setText("oooooooops");
+            myHeartRate.setText("oooooooops");
         }
     }
 
@@ -68,10 +71,12 @@ public class MainActivity extends AppCompatActivity {
         try {
             String str = NfcUtils.readNFCFromTag(intent);
             if(str.length() == 0) {
-                myText.setText("Length of String is 0. Failed...");
+                myStepCount.setText("Length of String is 0. Failed...");
+                myHeartRate.setText("Length of String is 0. Failed...");
             }
             else {
-                myText.setText(str);
+                myStepCount.setText(str);
+                myHeartRate.setText(str);
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
