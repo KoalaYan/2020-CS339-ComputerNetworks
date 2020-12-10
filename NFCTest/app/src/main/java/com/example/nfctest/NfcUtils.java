@@ -58,16 +58,28 @@ public class NfcUtils {
     }
 
     // 读取NFC数据
-    public static String readNFCFromTag(Intent intent) throws UnsupportedEncodingException {
+    public static String[] readNFCFromTag(Intent intent) throws UnsupportedEncodingException {
+        //String [] strList = new String[2];
+        String [] strList = new String[]{"", ""};
         Parcelable[] rawArray = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
         if (rawArray != null) {
             NdefMessage mNdefMsg = (NdefMessage) rawArray[0];
-            NdefRecord mNdefRecord = mNdefMsg.getRecords()[0];
-            if (mNdefRecord != null) {
-                return new String(mNdefRecord.getPayload(), "UTF-8");
+            //NdefRecord mNdefRecord = mNdefMsg.getRecords()[0];
+            NdefRecord mNdefRecord1 = mNdefMsg.getRecords()[0];
+            NdefRecord mNdefRecord2 = mNdefMsg.getRecords()[1];
+
+            if (mNdefRecord1 != null && mNdefRecord2 != null) {
+                //return new String(mNdefRecord.getPayload(), "UTF-8");
+                strList[0] = new String(mNdefRecord1.getPayload());
+                int len = strList[0].length();
+                strList[0] = strList[0].substring(3, len);
+                strList[1] = new String(mNdefRecord2.getPayload());
+                int len2 = strList[1].length();
+                strList[1] = strList[1].substring(3, len2);
+                //return strList;
             }
         }
-        return "";
+        return strList;
     }
 
     

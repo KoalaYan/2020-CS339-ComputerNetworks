@@ -20,9 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView myStepCount;
     private TextView myHeartRate;
     private NfcAdapter mNfcAdapter;
-    //private IntentFilter[] mIntentFilter = null;
     private PendingIntent mPendingIntent;
-    //private String[][] mTechList = null;
     private NfcUtils nfcUtils;
 
     public void initData() {
@@ -39,8 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         myStepCount = (TextView) findViewById(R.id.mycount);
         myHeartRate = (TextView) findViewById(R.id.myrate);
-
-        //mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+        
         if (mNfcAdapter == null) {
             myStepCount.setText("NFC is not available on this device.");
         } else {
@@ -69,14 +66,19 @@ public class MainActivity extends AppCompatActivity {
         //当该Activity接收到NFC标签时，运行该方法
         //调用工具方法，读取NFC数据
         try {
-            String str = NfcUtils.readNFCFromTag(intent);
-            if(str.length() == 0) {
-                myStepCount.setText("Length of String is 0. Failed...");
-                myHeartRate.setText("Length of String is 0. Failed...");
+            String[] str = NfcUtils.readNFCFromTag(intent);
+
+            if(str[0].length() == 0 || str[1].length() == 0) {
+                if (str[0].length() == 0) {
+                    myStepCount.setText("Failed...");
+                }
+                if (str[1].length() == 0) {
+                    myHeartRate.setText("Failed...");
+                }
             }
             else {
-                myStepCount.setText(str);
-                myHeartRate.setText(str);
+                myStepCount.setText(str[0] + " steps");
+                myHeartRate.setText(str[1] + " bpm");
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
