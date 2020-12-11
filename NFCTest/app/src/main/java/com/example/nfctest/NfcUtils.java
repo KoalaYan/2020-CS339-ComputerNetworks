@@ -12,6 +12,7 @@ import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.Settings;
+import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
 
@@ -62,6 +63,7 @@ public class NfcUtils {
         //String [] strList = new String[2];
         String [] strList = new String[]{"", ""};
         Parcelable[] rawArray = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+
         if (rawArray != null) {
             NdefMessage mNdefMsg = (NdefMessage) rawArray[0];
             //NdefRecord mNdefRecord = mNdefMsg.getRecords()[0];
@@ -80,6 +82,7 @@ public class NfcUtils {
             }
         }
         return strList;
+
     }
 
     
