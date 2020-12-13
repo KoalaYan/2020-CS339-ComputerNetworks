@@ -44,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
     private NfcUtils nfcUtils;
 
     private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothDevice mBluetoothDevice;
-    private BluetoothSocket mBluetoothSocket;
     private BTUtils btUtils;
 
     // 下拉菜单
@@ -101,29 +99,6 @@ public class MainActivity extends AppCompatActivity {
         //当该Activity接收到NFC标签时，运行该方法
         //调用工具方法，读取NFC数据
 
-        /*
-        try {
-            String str = BTUtils.connectBluetooth(intent);
-
-            myHeartRate.setText(str);
-
-            if (str.length() == 0) {
-                myHeartRate.setText("Empty string...");
-            }
-
-            mBluetoothDevice = BTUtils.mBluetoothDevice;
-            if (mBluetoothDevice == null) {
-                //myStepCount.setText("Failed in connecting device");
-            } else {
-                //myStepCount.setText("Successfully connect!");
-            }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-         */
-
-
         try {
             // 利用NFC获取Tag
             String[] str = NfcUtils.readNFCFromTag(intent);
@@ -148,6 +123,10 @@ public class MainActivity extends AppCompatActivity {
 
                         // 将历史记录放在下拉列表里
                         spinnerArray = Arrays.copyOfRange(str, 1, len);
+                        for(int i = 0; i < len - 1; i++) {
+                            tmpArr = stringSplit(spinnerArray[i], "\\+");
+                            spinnerArray[i] = tmpArr[0] + " " + tmpArr[1];
+                        }
                         spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, spinnerArray);
                         mySpinner.setAdapter(spinnerAdapter);
                     }
@@ -171,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
                                     myHeartRate.setText(tmpList[1]);
                                     recordList[i] = tmpList[0] + " " + tmpList[1];
                                 } else {
-                                    //myStepCount.setText(String.valueOf(tmpList.length));
                                     myStepCount.setText("Error occurred in the latest message...");
                                     myHeartRate.setText("Error occurred in the latest message...");
                                 }
@@ -197,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+        // 字符串分割
         private String[] stringSplit(String str, String sp) {
         return str.split(sp);
     }
