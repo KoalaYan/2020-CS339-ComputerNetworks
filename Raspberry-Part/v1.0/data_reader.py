@@ -1,3 +1,7 @@
+"""
+Read log files and store the (step count, heart beat rate) pairs into an array.
+"""
+
 import time
 import random
 import os
@@ -20,11 +24,13 @@ class DataReader(object):
         file_list.sort()
         file_list = file_list[self.pos: ]
         data_list = []
+
         for fp in file_list:
             fpath = os.path.join(self.filepath, fp)
             mf = open(fpath)
             data = mf.read()
             data_list.append(data)
+
         for entry in data_list:
             tmp = entry.split("#")
             if len(tmp) >= 3:
@@ -35,7 +41,7 @@ class DataReader(object):
 
     def read(self):
         self.run()
-        self.pos += len(self.data_buffer)
+        self.pos += len(self.data_buffer) # skip the log tranmitted before
         return self.data_buffer
 
 

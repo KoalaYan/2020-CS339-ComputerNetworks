@@ -5,7 +5,7 @@ import threading
 def run():
     with nfc.ContactlessFrontend(PN532_PATH) as clf:
         print("**************************************************")
-        print("  Emulation started, clf" + str(clf) + ".")
+        print("  Act as a bracelet. Tag-emulation started.")
         print("**************************************************\n")
 
         timeout = lambda: time.time() - started > NFC_WAITINE

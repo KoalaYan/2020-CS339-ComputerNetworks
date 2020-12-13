@@ -1,5 +1,3 @@
-# python -m pip install ndeflib
-# python -m pip install nfcpy
 
 import ndef
 import nfc
@@ -56,10 +54,10 @@ def create_ndef_message():
             ndef_message.append(heart_record)
 
     # display def message
-    print("[ndef message]")
+    print("[ndef message BEGIN]")
     for record in ndef_message:
         print("      ", record)
-    print("[message END]")
+    print("[ndef message END]")
 
     return is_bluetooth
 

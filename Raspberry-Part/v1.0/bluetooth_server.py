@@ -1,5 +1,5 @@
 """
-bluetooth server to send log data
+Bluetooth server to send log data.
 """
 
 import bluetooth
@@ -37,10 +37,15 @@ class BluetoothServer():
         self.client_sock, self.client_info = self.server_sock.accept()
         print("[BluetoothServer] Accepted connection from", self.client_info)
 
+    """
+     Send bracelet log to the phone in the form of a string. 
+
+    """
     def send_data(self):
-            print("[blue sent]:", self.buffer, "\n[blue sent END]")
+            print("[Bluetooth data BEGIN]\n    ", self.buffer, "\n[Bluetooth data END]")
 
             self.client_sock.send(self.buffer)
+
 
     def run(self):
         try:
