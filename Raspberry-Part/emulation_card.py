@@ -70,7 +70,5 @@ def on_connect(tag):
 
 with nfc.ContactlessFrontend('usb') as clf:
     print("clf=" + str(clf))
-    # with nfc.ContactlessFrontend('tty:USB0:pn532') as clf:
-    # print("emulate card")
     while clf.connect(card={'on-startup': on_startup, 'on-connect': on_connect}):
         print("tag released")
