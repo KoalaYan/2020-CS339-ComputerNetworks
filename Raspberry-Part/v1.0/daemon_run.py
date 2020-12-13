@@ -49,8 +49,7 @@ class MyTestDaemon(Daemon):
 if __name__ == '__main__':
     PIDFILE = '/tmp/daemon-example.pid'
     LOG = '/tmp/daemon-example.log'
-    FILEPATH = LOG_PATH
-    daemon = MyTestDaemon(pidfile=PIDFILE, stdout=LOG, stderr=LOG, filepath=FILEPATH)
+    daemon = MyTestDaemon(pidfile=PIDFILE, stdout=LOG, stderr=LOG, filepath=LOG_PATH)
 
     if len(sys.argv) != 2:
         print('Usage: {} [start|stop]'.format(sys.argv[0]), file=sys.stderr)

@@ -3,11 +3,11 @@ import random
 import os
 import sys
 import threading
-
+from param import LOG_PATH
 class DataReader(object):
     
     data_buffer = []
-    filepath='/usr/test/'
+    filepath = LOG_PATH
     pos = 0
 
     def  __init__(self):
