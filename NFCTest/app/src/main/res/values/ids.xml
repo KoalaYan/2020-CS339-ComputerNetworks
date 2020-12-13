@@ -2,4 +2,5 @@
 <resources>
     <item name="mycount" type="id" />
     <item name="myrate" type="id" />
+    <item name="mymode" type="id" />
 </resources>

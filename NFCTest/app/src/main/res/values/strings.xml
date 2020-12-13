@@ -2,6 +2,8 @@
     <string name="app_name">NFCTest</string>
     <string name="Header">SPORTS SNAP</string>
     <string name="topHeader">SPORTS</string>
-    <string name="stepcount">Step Count:</string>
-    <string name="heartrate">Heart Rate:</string>
+    <string name="stepcount">Latest Step Count:</string>
+    <string name="heartrate">Latest Heart Rate:</string>
+    <string name="history">History Record:</string>
+    <string name="Mode">Trans Mode :</string>
 </resources>

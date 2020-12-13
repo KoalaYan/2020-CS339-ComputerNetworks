@@ -11,43 +11,41 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.os.Build;
 import android.os.Parcelable;
 import android.util.Log;
+import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-public class BTUtils extends Thread{
-    // NFC
-    //public static NfcAdapter mNfcAdapter;
-    //public static IntentFilter[] mIntentFilter = null;
-    //public static PendingIntent mPendingIntent = null;
-    //public static String[][] mTechList = null;
+public class BTUtils extends Thread {
 
+    // 蓝牙连接
     public static BluetoothAdapter mBluetoothAdapter;
     public static BluetoothDevice mBluetoothDevice;
     public static BluetoothSocket mBluetoothSocket;
-    //private static final UUID MyUUID = UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee");
     private static UUID MyUUID;
+
+    // 蓝牙数据传输
+    public static final int MESSAGE_READ = 0;
+    private static InputStream mInStream;
 
 
     // 构造函数
     public BTUtils(Activity activity) {
         mBluetoothAdapter = BTCheck(activity);
-        //BTInit(activity);
     }
 
     // 检查Bluetooth是否打开并初始化
     public static BluetoothAdapter BTCheck(Activity activity) {
-        //else {
-        //    if (!tmpAdapter.isEnabled()) {
-        //        Intent setNfc = new Intent(Settings.ACTION_NFC_SETTINGS);
-        //        activity.startActivity(setNfc);
-        //    }
-        //}
+
         return BluetoothAdapter.getDefaultAdapter();
     }
 
@@ -61,8 +59,7 @@ public class BTUtils extends Thread{
                 } else {
                     num += str[i] - '0';
                 }
-            }
-            else if (str[i] >= 'A' && str[i] <= 'F') {
+            } else if (str[i] >= 'A' && str[i] <= 'F') {
                 if (i == begin) {
                     num += (str[i] - 'A' + 10) * 16;
                 } else {
@@ -77,107 +74,202 @@ public class BTUtils extends Thread{
         byte[] bMacAddress = new byte[6];
         int count = 0;
         for (int i = 0; i < 6; i++) {
-            bMacAddress[i] = subString2byte(str, 2*i + count, 2*i + 2 + count);
+            bMacAddress[i] = subString2byte(str, 2 * i + count, 2 * i + 2 + count);
             count++;
         }
         return bMacAddress;
     }
 
 
-    // 读取蓝牙数据
-    public static String connectBluetooth(Intent intent) throws UnsupportedEncodingException {
-        //String [] strList = new String[]{"", ""};
-        Parcelable[] rawArray = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+    // 连接蓝牙并读取数据
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public static String connectBluetooth(Intent intent, String[] strList, TextView tv) throws IOException {
 
-        String str = null;
-        String str2 = null;
+        String messageStr = null;
+        String resultStr = null;
         String UUIDString = null;
+        String MACString = null;
+        String tv_str = "enter bluetooth\n";
+        tv.setText(tv_str);
 
-        if (rawArray != null) {
-            //NdefMessage[] msgs = new NdefMessage[rawArray.length];
-            NdefMessage mNdefMsg = (NdefMessage) rawArray[0];
-            //for (int i = 0; i < rawArray.length; i++) {
-            //    msgs[i] = (NdefMessage) rawArray[i];
-            //    Log.i("Parsed NDEF message ", "NDEF record: " + msgs[i]);
-            //}
-            //NdefRecord[] records_list = msgs[0].getRecords();
-            NdefRecord mNdefRecord = mNdefMsg.getRecords()[0];
-            NdefRecord mNdefRecord_forUUID = mNdefMsg.getRecords()[1];
-            //Log.i("Parsed NDEF record ", "First record: " + records_list[0]);
+        // 若数组长度不为2，说明存在数据错误，返回错误信息
+        if (strList.length != 2) {
+            messageStr = "Error size";
+            return null;
+        }
 
-            if (mNdefRecord == null || mNdefRecord_forUUID == null) {
+        String[] tmpArr = strList[1].split("\\+");        // 字符串分割
+        MACString = tmpArr[0];                                  // 获得MAC地址字符串
+        UUIDString = tmpArr[1];                                 // 获得UUID字符串
+
+        // 生成Mac地址
+        byte[] bMacAddress = string2mac(MACString);
+
+        // 生成UUID
+        MyUUID = UUID.fromString(UUIDString);
+
+        mBluetoothAdapter.enable();             // 开启蓝牙
+        mBluetoothDevice = null;
+        mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bMacAddress);      // 利用Mac地址查找设备
+
+        // 创建Socket
+        mBluetoothSocket = null;
+        try {
+            mBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(MyUUID);
+            //messageStr = "Socket Create succeed";
+        } catch (IOException e) {
+            //messageStr = "Socket Create failed";
+        }
+
+        mBluetoothAdapter.cancelDiscovery();                    // 关闭蓝牙搜索
+
+        // 建立Socket连接
+        try {
+            mBluetoothSocket.connect();
+            messageStr = "Connect success";
+        } catch (IOException connectException) {
+            try {
+                mBluetoothSocket.close();
+                messageStr = "Fail to connect socket, close success";
+                return null;
+            } catch (IOException closeException) {
+                messageStr = "Fail to connect socket, close failed";
                 return null;
             }
+        }
 
-            // 预处理Mac地址的字符串
-            str = new String(mNdefRecord.getPayload());
-            int len = str.length();
-            str = str.substring(3, len);
+        tv_str += "socket connected successfully\n";
+        tv.setText(tv_str);
 
-            //byte[] bMacAddress = string2mac(str);
+        // 读取蓝牙数据
+        InputStream tmpIn = null;
+        try {
+            tmpIn = mBluetoothSocket.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+            messageStr = "Error occurred in bt data reading";
+            return messageStr;
+            }
+        mInStream = tmpIn;
 
-            //str =  new String(bMacAddress);
+        byte[] mBuffer = new byte[1024];
+        int byteNum;
 
 
-            //byte[] payload = mNdefRecord.getPayload();
-
+        // 持续监听InputStream直到异常抛出（Server的蓝牙关闭）
+        while (true) {
             try {
-                //byte[] bMacAddress = new byte[6];
-                // 生成Mac地址
-                byte[] bMacAddress = string2mac(str);
+                byteNum = mInStream.read(mBuffer);
+            } catch (IOException e) {
+                e.printStackTrace();
+                break;
+            } finally {
+                resultStr = "123214";
+                break;
+            }
+        }
 
-                //str =  new String(bMacAddress);
-
-                // 得到UUID
-                UUIDString = new String(mNdefRecord_forUUID.getPayload());
-                int len2 = UUIDString.length();
-                UUIDString = UUIDString.substring(3, len2);
-                MyUUID = UUID.fromString(UUIDString);
-
-
-                mBluetoothAdapter.enable();             // 开启蓝牙
-                //mBluetoothAdapter.startDiscovery();     // 开始搜索
-                mBluetoothDevice = null;
-                mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bMacAddress);      // 利用Mac地址查找设备
-
-                //ParcelUuid[] pUIied = bDev.getUuids();
-                //Log.e("Bluetooth test", "remote UUID " + pUIid[0]);
+        // 将buffer转化成String结果返回
+        try {
+            resultStr = new String(mBuffer);
+            //resultStr = new String("123");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error occurred when transferring buffer";
+        }
 
 
-                // 创建Socket
-                mBluetoothSocket = null;
-                try {
-                    mBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(MyUUID);
-                    //str2 = "Socket Create succeed";
-                } catch (IOException e) {
-                    //str2 = "Socket Create failed";
-                }
-                //if (mBluetoothSocket == null) {
-                //    str2 = "Socket NULL!";
-                //} else {
-                //    str2 = "Socket CREATE!";
-                //}
+        // 关闭Socket
+        try {
+            mBluetoothSocket.close();
+            if (!mBluetoothSocket.isConnected()) {
+                messageStr = "Close success";
+            } else {
+                messageStr = "Close failed";
+                return null;
+            }
+        } catch (IOException e) {
+            messageStr = "Error occurred when closing socket";
+            return null;
+        }
 
-                mBluetoothAdapter.cancelDiscovery();                    // 关闭蓝牙搜索
-                try {
-                    mBluetoothSocket.connect();
-                    str2 = "Connect success";
-                } catch (IOException connectException) {
-                    try {
-                        mBluetoothSocket.close();
-                        str2 = "Close success";
-                    } catch (IOException closeException) {
-                        str2 = "Close failed";
-                    }
-                }
+        //if (rawArray != null) {
+        //    NdefMessage mNdefMsg = (NdefMessage) rawArray[0];
+        //    NdefRecord mNdefRecord = mNdefMsg.getRecords()[0];
+        //    NdefRecord mNdefRecord_forUUID = mNdefMsg.getRecords()[1];
+
+        //    if (mNdefRecord == null || mNdefRecord_forUUID == null) {
+        //        return null;
+        //    }
+
+        // 预处理Mac地址的字符串
+        //    str = new String(mNdefRecord.getPayload());
+        //    int len = str.length();
+        //    str = str.substring(3, len);
+
+        // 生成Mac地址
+        //    byte[] bMacAddress = string2mac(str);
+
+        // 得到UUID
+        //    UUIDString = new String(mNdefRecord_forUUID.getPayload());
+        //    int len2 = UUIDString.length();
+        //    UUIDString = UUIDString.substring(3, len2);
+        //    MyUUID = UUID.fromString(UUIDString);
 
 
-                //if (mBluetoothSocket.isConnected()) {
-                //    str2 = "Socket connected!";
-                //} else {
-                //    str2 = "Socket not connected...";
-                //}
+        //    mBluetoothAdapter.enable();             // 开启蓝牙
+        //    mBluetoothDevice = null;
+        //    mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(bMacAddress);      // 利用Mac地址查找设备
 
+        // 创建Socket
+        //    mBluetoothSocket = null;
+        //    try {
+        //        mBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(MyUUID);
+        //str2 = "Socket Create succeed";
+        //    } catch (IOException e) {
+        //str2 = "Socket Create failed";
+        //    }
+
+        //    mBluetoothAdapter.cancelDiscovery();                    // 关闭蓝牙搜索
+        //    try {
+        //        mBluetoothSocket.connect();
+        //        str2 = "Connect success";
+        //    } catch (IOException connectException) {
+        //        try {
+        //            mBluetoothSocket.close();
+        //            str2 = "Close success";
+        //        } catch (IOException closeException) {
+        //            str2 = "Close failed";
+        //        }
+        //    }
+
+        // 读取蓝牙数据
+        //    InputStream tmpIn = null;
+        //    try {
+        //        tmpIn = mBluetoothSocket.getInputStream();
+        //    } catch (IOException e) {
+        //        e.printStackTrace();
+        //str2 = "Error occurred in bt data transmission";
+        //    }
+        //    mInStream = tmpIn;
+
+        //    byte[] mBuffer = new byte[1024];
+        //    int byteNum;
+
+        // 持续监听InputStream直到异常抛出（Server的蓝牙关闭）
+        //    while (true) {
+        //        try {
+        //            byteNum = mInStream.read(mBuffer);
+        //        } catch (IOException e) {
+        //            e.printStackTrace();
+        //            break;
+        //        }
+        //    }
+
+        //    str2 = new String(mBuffer);
+
+
+                /*
                 try {
                     Method m = mBluetoothDevice.getClass().getMethod("createBond", (Class[]) null);
                     m.invoke(mBluetoothDevice, (Object[]) null);
@@ -187,40 +279,28 @@ public class BTUtils extends Thread{
                 } catch (InvocationTargetException e) {
                     e.printStackTrace();
                 }
+                 */
 
-                mBluetoothSocket.connect();
+        //    try {
+        //        mBluetoothSocket.close();
+        //if (mBluetoothSocket.isConnected()) {
+        //    str2 = "Yes";
+        //} else {
+        //    str2 = "No";
+        //}
+        //    } catch (IOException e) {
+        //        //str2 = "oooo";
+        //        return str2;
+        //    }
 
+        //}
+        //return str2;
+        //}
 
-            } catch (IOException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
+        //public static int isBluetooth() {
 
+        //}
 
-        }
-        //return UUIDString;
-        return str2;
-    }
-
-
-
-    // 读取NFC ID
-    public static String readNFCId(Intent intent) throws UnsupportedEncodingException {
-        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        return ByteArrayToHexString(tag.getId());
-    }
-
-    private static String ByteArrayToHexString(byte[] inarray) {
-        int i, j, in;
-        String[] hex = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
-        String out = "";
-
-        for (j = 0; j < inarray.length; ++j) {
-            in = (int) inarray[j] & 0xff;
-            i = (in >> 4) & 0x0f;
-            out += hex[i];
-            i = in & 0x0f;
-            out += hex[i];
-        }
-        return out;
+        return resultStr;
     }
 }

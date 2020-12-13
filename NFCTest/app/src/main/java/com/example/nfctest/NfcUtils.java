@@ -15,6 +15,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class NfcUtils {
     // NFC
@@ -60,34 +61,38 @@ public class NfcUtils {
 
     // 读取NFC数据
     public static String[] readNFCFromTag(Intent intent) throws UnsupportedEncodingException {
-        //String [] strList = new String[2];
-        String [] strList = new String[]{"", ""};
+        String [] strList = null;
         Parcelable[] rawArray = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 
         if (rawArray != null) {
             NdefMessage mNdefMsg = (NdefMessage) rawArray[0];
-            //NdefRecord mNdefRecord = mNdefMsg.getRecords()[0];
-            NdefRecord mNdefRecord1 = mNdefMsg.getRecords()[0];
-            NdefRecord mNdefRecord2 = mNdefMsg.getRecords()[1];
+            int len = mNdefMsg.getRecords().length;                 // 获取传输数据的size
 
-            if (mNdefRecord1 != null && mNdefRecord2 != null) {
-                //return new String(mNdefRecord.getPayload(), "UTF-8");
-                strList[0] = new String(mNdefRecord1.getPayload());
-                int len = strList[0].length();
-                strList[0] = strList[0].substring(3, len);
-                strList[1] = new String(mNdefRecord2.getPayload());
-                int len2 = strList[1].length();
-                strList[1] = strList[1].substring(3, len2);
-                //return strList;
+            strList = new String[(len - 1) / 2 + 1];                    // 将"步数 + 心率"保存为一个字符串
+
+            strList[0] = new String(mNdefMsg.getRecords()[0].getPayload());  // 获取标志位
+            int tmpLen = strList[0].length();
+            strList[0] = strList[0].substring(3, tmpLen);
+
+            // 使用NFC进行数据传输
+            for (int i = 0; i < (len - 1) / 2; i++) {
+                String str1 = new String(mNdefMsg.getRecords()[2 * i + 1].getPayload());
+                tmpLen = str1.length();
+                str1 = str1.substring(3, tmpLen);      // 去除冗余
+                str1 = str1 + "+";
+                String str2 = new String(mNdefMsg.getRecords()[2 * i + 2].getPayload());
+                tmpLen = str2.length();
+                str2 = str2.substring(3, tmpLen);      // 去除冗余
+                strList[i + 1] =str1 + str2;            // 组合成一个字符串进行传输
             }
         }
         return strList;
-
     }
 
     
 
     // 读取NFC ID
+    /*
     public static String readNFCId(Intent intent) throws UnsupportedEncodingException {
         Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         return ByteArrayToHexString(tag.getId());
@@ -107,4 +112,6 @@ public class NfcUtils {
         }
         return out;
     }
+
+     */
 }

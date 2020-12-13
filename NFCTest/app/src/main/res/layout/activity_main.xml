@@ -37,7 +37,55 @@
             android:textColor="@color/white"
             android:textSize="40sp"
             android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="270dp"
+            android:layout_height="25dp"
+            android:layout_marginStart="84sp"
+            android:layout_marginLeft="84sp"
+            android:layout_marginTop="490sp" />
+
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="52sp"
+        android:layout_marginLeft="52sp"
+        android:layout_marginTop="380sp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text="@string/history"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="52sp"
+        android:layout_marginLeft="52sp"
+        android:layout_marginTop="114sp"
+        android:text="@string/Mode"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/mymode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="190sp"
+        android:layout_marginLeft="190sp"
+        android:layout_marginTop="114sp"
+        android:text=""
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/mycount"
@@ -45,20 +93,21 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="84sp"
         android:layout_marginLeft="84sp"
-        android:layout_marginTop="188sp"
+        android:layout_marginTop="228sp"
         android:padding="10sp"
         android:text=""
         android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="144sp"
-        android:layout_height="31sp"
+        android:layout_width="223dp"
+        android:layout_height="35dp"
         android:layout_marginStart="52sp"
         android:layout_marginLeft="52sp"
-        android:layout_marginTop="144sp"
+        android:layout_marginTop="194sp"
         android:text="@string/stepcount"
         android:textSize="25sp"
         android:textStyle="bold"
@@ -67,11 +116,11 @@
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="139sp"
-        android:layout_height="32sp"
+        android:layout_width="210dp"
+        android:layout_height="30dp"
         android:layout_marginStart="52sp"
         android:layout_marginLeft="52sp"
-        android:layout_marginTop="250sp"
+        android:layout_marginTop="280sp"
         android:text="@string/heartrate"
         android:textSize="25sp"
         android:textStyle="bold"
@@ -84,10 +133,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="84sp"
         android:layout_marginLeft="84sp"
-        android:layout_marginTop="304sp"
+        android:layout_marginTop="324sp"
         android:padding="10sp"
         android:text=""
         android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

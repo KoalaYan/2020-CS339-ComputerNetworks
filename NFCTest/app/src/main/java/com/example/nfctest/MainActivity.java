@@ -1,17 +1,26 @@
 package com.example.nfctest;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.content.Intent;
 
@@ -21,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.UUID;
 
 
@@ -28,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView myStepCount;
     private TextView myHeartRate;
+    private TextView myMode;
     private NfcAdapter mNfcAdapter;
     private PendingIntent mPendingIntent;
     private NfcUtils nfcUtils;
@@ -37,24 +48,11 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothSocket mBluetoothSocket;
     private BTUtils btUtils;
 
-    private static final int MESSAGE_READ = 0;
+    // 下拉菜单
+    private Spinner mySpinner;
+    ArrayAdapter<String> spinnerAdapter;
+    String[] spinnerArray;
 
-    private static Handler mHandler = new Handler(){
-        public void handleMessage(Message msg){
-            switch(msg.what){
-                case MESSAGE_READ:
-                    byte[] buffer = (byte[])msg.obj;//buffer的大小和裏面數據的多少沒有關系
-                    for(int i=0; i<buffer.length; i++){
-                        if(buffer[i] != 0){
-                            System.out.println(buffer[i]);
-                        }
-                    }
-                    break;
-            }
-        }
-    };
-
-    ConnectedThread mConnectedThread;
 
     //nfc初始化设置
     public void initData() {
@@ -75,23 +73,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         myStepCount = (TextView) findViewById(R.id.mycount);
         myHeartRate = (TextView) findViewById(R.id.myrate);
-
-        /*
-        if (mNfcAdapter == null) {
-            myStepCount.setText("NFC is not available on this device.");
-        } else {
-            myStepCount.setText("oooooooops");
-            myHeartRate.setText("oooooooops");
-        }
-        */
-        /*
-        if (mBluetoothAdapter == null) {
-            myStepCount.setText("Failed to obtain bluetooth adapter");
-        } else {
-            myStepCount.setText("Bluetooth adapter is obtained!");
-        }
-        */
-
+        myMode = (TextView) findViewById(R.id.mymode);
+        mySpinner = (Spinner) findViewById(R.id.spinner);
+        spinnerArray = new String[]{"History Record", "..."};
+        spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, spinnerArray);
+        mySpinner.setAdapter(spinnerAdapter);
     }
 
     @Override
@@ -108,12 +94,14 @@ public class MainActivity extends AppCompatActivity {
         mNfcAdapter.disableForegroundDispatch(this);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         //当该Activity接收到NFC标签时，运行该方法
         //调用工具方法，读取NFC数据
 
+        /*
         try {
             String str = BTUtils.connectBluetooth(intent);
 
@@ -133,137 +121,85 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+         */
 
-        /*
+
         try {
+            // 利用NFC获取Tag
             String[] str = NfcUtils.readNFCFromTag(intent);
 
-            if(str[0].length() == 0 || str[1].length() == 0) {
-                if (str[0].length() == 0) {
-                    myStepCount.setText("Failed...");
+            if (str != null) {
+                //打印数据传输模式
+                myMode.setText(str[0]);
+
+                if (str[0].equals("nfc")) {
+                    // 使用NFC进行数据传输，已完成，只需打印
+                    int len = str.length;
+                    if (len <= 1) {
+                        myStepCount.setText("Empty message in NFC transmission");
+                        myHeartRate.setText("Empty message in NFC transmission");
+                    }
+                    String[] tmpArr = str[len - 1].split("\\+");        // 字符串分割
+
+                    if (len > 1) {
+                        // 打印最新的步数和心率
+                        myStepCount.setText(tmpArr[0]);
+                        myHeartRate.setText(tmpArr[1]);
+
+                        // 将历史记录放在下拉列表里
+                        spinnerArray = Arrays.copyOfRange(str, 1, len);
+                        spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, spinnerArray);
+                        mySpinner.setAdapter(spinnerAdapter);
+                    }
+
+                } else {
+                    //myStepCount.setText("Begin to use bluetooth");
+                    // 使用蓝牙进行剩余数据的传输
+                    String oriBTRes = null;
+                    oriBTRes = BTUtils.connectBluetooth(intent, str, myStepCount);
+                    if (oriBTRes != null) {
+                        //myStepCount.setText(oriBTRes);
+                        String[] recordList = stringSplit(oriBTRes, "\\;");
+                        //myStepCount.setText(String.valueOf(recordList.length));
+                        for (int i = 0; i < recordList.length; i++) {
+                            String[] tmpList = stringSplit(recordList[i], "\\#");
+
+                            if (i == recordList.length - 1) {
+                                // 最新数据，打印
+                                if (tmpList.length == 2) {
+                                    myStepCount.setText(tmpList[0]);
+                                    myHeartRate.setText(tmpList[1]);
+                                    recordList[i] = tmpList[0] + " " + tmpList[1];
+                                } else {
+                                    //myStepCount.setText(String.valueOf(tmpList.length));
+                                    myStepCount.setText("Error occurred in the latest message...");
+                                    myHeartRate.setText("Error occurred in the latest message...");
+                                }
+                            }
+                            // 将历史数据进行形式处理，去掉#
+                            if (tmpList.length == 2) {
+                                recordList[i] = tmpList[0] + " " + tmpList[1];
+                            }
+                        }
+                        // 将历史记录放在下拉列表里
+                        spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, recordList);
+                        mySpinner.setAdapter(spinnerAdapter);
+                    } else {
+                        myStepCount.setText("Bluetooth connection returns null");
+                    }
                 }
-                if (str[1].length() == 0) {
-                    myHeartRate.setText("Failed...");
-                }
-            }
-            else {
-                myStepCount.setText(str[0] + " (steps)");
-                myHeartRate.setText(str[1] + " (bpm)");
+
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-        }
-         */
-    }
-
-    void manageConnectedSocket(BluetoothSocket socket){
-        //System.out.println("From manageConnectedSocket:"+socket);
-        mConnectedThread = new ConnectedThread(socket);
-        mConnectedThread.start();
-    }
-
-    private class ConnectThread extends Thread {
-        private final BluetoothSocket mmSocket;
-        private final BluetoothDevice mmDevice;
-
-        public ConnectThread(BluetoothDevice device) {
-            // Use a temporary object that is later assigned to mmSocket,
-            // because mmSocket is final
-            BluetoothSocket tmp = null;
-            mmDevice = device;
-
-            // Get a BluetoothSocket to connect with the given BluetoothDevice
-            try {
-                // MY_UUID is the app's UUID string, also used by the server code
-                tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("0c312388-5d09-4f44-b670-5461605f0b1e"));
-            } catch (IOException e) { }
-            mmSocket = tmp;
-        }
-
-        public void run() {
-            // Cancel discovery because it will slow down the connection
-            mBluetoothAdapter.cancelDiscovery();
-
-            try {
-                // Connect the device through the socket. This will block
-                // until it succeeds or throws an exception
-                mmSocket.connect();//這個操作需要幾秒鐘，不是立即能見效的
-            } catch (IOException connectException) {
-                // Unable to connect; close the socket and get out
-                try {
-                    mmSocket.close();
-                } catch (IOException closeException) { }
-                return;
-            }
-
-            // Do work to manage the connection (in a separate thread)
-            manageConnectedSocket(mmSocket);
-        }
-
-        /** Will cancel an in-progress connection, clean up all internal resources, and close the socket */
-        public void cancel() {
-            try {
-                mmSocket.close();
-            } catch (IOException e) { }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private class ConnectedThread extends Thread {
-        private final BluetoothSocket mmSocket;
-        private final InputStream mmInStream;
-        private final OutputStream mmOutStream;
-
-        public ConnectedThread(BluetoothSocket socket) {
-            mmSocket = socket;
-            InputStream tmpIn = null;
-            OutputStream tmpOut = null;
-
-            // Get the input and output streams, using temp objects because
-            // member streams are final
-            try {
-                tmpIn = socket.getInputStream();
-                tmpOut = socket.getOutputStream();
-            } catch (IOException e) { }
-
-            mmInStream = tmpIn;
-            mmOutStream = tmpOut;
-        }
-
-        public void run() {
-            byte[] buffer = new byte[1024];  // buffer store for the stream
-            int bytes; // bytes returned from read()
-
-            // Keep listening to the InputStream until an exception occurs
-            while (true) {
-                try {
-                    // Read from the InputStream
-                    bytes = mmInStream.read(buffer);
-                    // Send the obtained bytes to the UI activity
-                    //Message msg = new Message();
-                    //msg.what = MESSAGE_READ;
-                    mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
-                            .sendToTarget();
-                } catch (IOException e) {
-                    break;
-                }
-            }
-        }
-
-        /* Call this from the main activity to send data to the remote device */
-        public void write(byte[] bytes) {
-            try {
-                mmOutStream.write(bytes);
-            } catch (IOException e) { }
-        }
-
-        /* Call this from the main activity to shutdown the connection */
-        public void cancel() {
-            try {
-                mmSocket.close();
-            } catch (IOException e) { }
-        }
+        private String[] stringSplit(String str, String sp) {
+        return str.split(sp);
     }
-
 
 }
 
