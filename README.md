@@ -1,4 +1,5 @@
-# 2020-CS339-ComputerNetworks
+# CS339-Project
+**2020 Computer network course project**
 ## What is NFC?
 Near-Field-Communication (NFC) is a set of communication protocols for communication 
 between two electronic devices over a distance of 4 cm (1.5 in) or less.
